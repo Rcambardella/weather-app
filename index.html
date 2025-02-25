@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Today's Weather</title>
+        <link rel="stylesheet" href="./style.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+</head>
+
+<body>
+    <div class="card">
+        <div class="search">
+            <input type="text" placeholder="Enter City Name:" spellcheck="false">
+            <button><img src="./images/search.png"></button>
+        </div>
+        <div class="error">
+            <p>Invalid city name</p>
+        </div>
+        <div class="weather">
+            <img src="images/rain.png" class="weather-icon">
+            <h1 class="temp">80°F</h1>
+            <h2 class="city">San Fransisco</h2>
+        </div>
+        <div class="details">
+            <div class="col">
+                <img src="images/humidity.png">
+                <div>
+                    <p class="humidity">50%</p>
+                    <p>Humidity</p>
+                </div>
+            </div>
+            <div class="col">
+                <img src="images/wind.png" alt="">
+                <div>
+                    <p class="wind">5 mph</p>
+                    <p>Wind</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+
+const apiKey = "3bda7b72177a596ce74f120b0514bfdb";
+const latlon_Url = "http://api.openweathermap.org/geo/1.0/direct?limit=1&q=";
+const weather_url = "https://api.openweathermap.org/data/2.5/weather?units=imperial"
+
+const searchBox = document.querySelector(".search input");
+const searchBtn = document.querySelector(".search button");
+const weatherIcon = document.querySelector(".weather-icon");
+
+async function checkWeather(city){
+    const response = await fetch(latlon_Url + city + `&appid=${apiKey}`);
+    var data = await response.json();
+
+    if(data.length === 0){
+        document.querySelector(".error").style.display = "block";
+    }else {
+        document.querySelector(".error").style.display = "none";
+        console.log(data);
+
+        var lat = data[0].lat;
+        var lon = data[0].lon;
+
+        const response_new = await fetch(weather_url + `&lat=${lat}` + `&lon=${lon}` + `&appid=${apiKey}`);
+        var newData = await response_new.json();
+
+        console.log(newData);
+
+        document.querySelector(".city").innerHTML = newData.name;
+        document.querySelector(".temp").innerHTML = Math.round(newData.main.temp) + "°F";
+        document.querySelector(".humidity").innerHTML = newData.main.humidity + "%";
+        document.querySelector(".wind").innerHTML = newData.wind.speed + " mph";
+
+        if(newData.weather[0].main == "Clouds"){
+            weatherIcon.src = "images/clouds.png"
+        }
+        else if(newData.weather[0].main == "Clear"){
+            weatherIcon.src = "images/clear.png"
+        }
+        else if(newData.weather[0].main == "Drizzle"){
+            weatherIcon.src = "images/drizzle.png"
+        }
+        else if(newData.weather[0].main == "Mist"){
+            weatherIcon.src = "images/mist.png"
+        }
+        else if(newData.weather[0].main == "Rain"){
+            weatherIcon.src = "images/rain.png"
+        }
+        else if(newData.weather[0].main == "Snow"){
+            weatherIcon.src = "images/snow.png"
+        }
+        }
+}
+
+searchBtn.addEventListener("click", ()=> {
+    checkWeather(searchBox.value);
+});
+</script>
+</body>
+</html>
